@@ -18,6 +18,9 @@
 /****************************************************************************/
 /*!                              Macros                                     */
 
+#define IP_TACK_KEY CONFIG_IP_TACK_KEY
+#define OPEN_WEATHER_MAP_KEY CONFIG_OPEN_WEATHER_MAP_KEY
+
 #define REQUEST_DELAY 5*60*1000
 
 /****************************************************************************/
@@ -59,7 +62,8 @@ void HTTPRequestLocation(void *params)
             led_blink();
             char url[133];
             sprintf(url,
-                    "http://api.ipstack.com/check?access_key=dc69cf6504c566142dc601d79e2faedd&fields=latitude,longitude");
+                    "http://api.ipstack.com/check?access_key=%s&fields=latitude,longitude",
+                    IP_TACK_KEY);
             http_request(url);
             xSemaphoreGive(wifiSemaphoreHTTP);
             vTaskDelay(REQUEST_DELAY / portTICK_PERIOD_MS);
@@ -80,9 +84,10 @@ void HTTPRequestWeather(void *params)
             led_blink();
             char url[150];
             sprintf(url,
-                    "http://api.openweathermap.org/data/2.5/weather?lat=%lf&lon=%lf&units=metric&appid=1d9be38b5b89c68d2f991eff0317a6ee",
+                    "http://api.openweathermap.org/data/2.5/weather?lat=%lf&lon=%lf&units=metric&appid=%s",
                     field.latitude,
-                    field.longitude);
+                    field.longitude,
+                    OPEN_WEATHER_MAP_KEY);
             http_request(url);
             print();
             xSemaphoreGive(wifiSemaphoreHTTP);
