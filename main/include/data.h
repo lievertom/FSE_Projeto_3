@@ -21,4 +21,10 @@ typedef struct Field
   */
 void print();
 
+
+/*!
+ * @brief This function parse JSON.
+ */
+void parser(char * buffer);
+
 #endif /* DATA_H_ */

@@ -3,7 +3,6 @@
 
 #include <string.h>
 
-#include "cJSON.h"
 #include "esp_log.h"
 #include "esp_event.h"
 #include "esp_http_client.h"
@@ -70,18 +69,7 @@ esp_err_t _http_event_handle(esp_http_client_event_t *evt)
                     }
                     memcpy(output_buffer + output_len, evt->data, evt->data_len);
                 }
-                output_len += evt->data_len;
-                if (esp_http_client_is_complete_data_received(evt->client))
-                {
-                    cJSON * json = cJSON_Parse (output_buffer);
-                    cJSON * data = cJSON_GetObjectItem(json, "main");
-                    field.temperature = cJSON_GetObjectItemCaseSensitive(data, "temp")->valuedouble;
-                    field.temp_min = cJSON_GetObjectItemCaseSensitive(data, "temp_min")->valuedouble;
-                    field.temp_max = cJSON_GetObjectItemCaseSensitive(data, "temp_max")->valuedouble;
-                    field.humidity = cJSON_GetObjectItemCaseSensitive(data, "humidity")->valuedouble;
-                    cJSON_Delete(json);       
-                }
-                
+                output_len += evt->data_len;                
             }
             else
             {
@@ -94,15 +82,12 @@ esp_err_t _http_event_handle(esp_http_client_event_t *evt)
                     output_buffer[evt->data_len] = '\0';
                 }
                 memcpy(output_buffer + output_len, evt->data, evt->data_len);
-                cJSON * json = cJSON_Parse (output_buffer);
-                field.latitude = cJSON_GetObjectItemCaseSensitive(json, "latitude")->valuedouble;
-                field.longitude = cJSON_GetObjectItemCaseSensitive(json, "longitude")->valuedouble;
-                cJSON_Delete(json);       
             }
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
             if (output_buffer != NULL) {
+                parser(output_buffer);
                 free(output_buffer);
                 output_buffer = NULL;
             }
